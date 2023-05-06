@@ -1,0 +1,7 @@
+type PaginatorProps = {
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+}
+
+export default PaginatorProps

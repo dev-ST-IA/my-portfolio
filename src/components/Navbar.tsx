@@ -6,7 +6,7 @@ import { Nav, NavItem, NavList, StyledLink } from '@/styles/styledComponents';
 import { ContentfulContext } from '@/context/ContentfulContext';
 
 type Props = {
-  topics? : [PostTopic]|null
+  topics? : PostTopic[]|undefined
 }
 const Navbar: React.FC<Props> = ({topics}) => {
   const router = useRouter();

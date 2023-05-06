@@ -7,33 +7,23 @@ import Person from "@/types/Person";
 import SocialProfile from "@/types/SocialProfile";
 import ContentfulProviderValues from "@/types/ContentfulProviderValues";
 import Splash from "@/components/Splash";
-import { gql,useQuery } from "@apollo/client";
-
-const POST_TOPICS_QUERY = gql`
-  query PostTopicEntryQuery($personId: String!) {
-    postTopicCollection(where: { person: { sys: { id: $personId } } }) {
-      items {
-        topicName
-        path
-        sys {
-          id
-        }
-      }
-    }
-  }
-`;
+import { useQuery } from "@apollo/client";
+import { POST_TOPICS_QUERY } from "@/lib/queries";
+import PostGroup from "@/types/PostGroup";
 
 // Create the context
-export const ContentfulContext = createContext<ContentfulProviderValues|null>(null);
+export const ContentfulContext = createContext<ContentfulProviderValues|undefined>(undefined);
 
 // Create the provider
 const ContentfulProvider = ({
   children
 }: ContentfulProviderProps) => {
-  const [currentPostTopic, setCurrentPostTopic] = useState<PostTopic | null>();
-  const [person, setCurrentPerson] = useState<Person|null>()
-  const [socialProfiles,setSocials] = useState<[SocialProfile]|null>()
-  const [postTopics,setPostTopics] = useState<[PostTopic]|null>()
+  const [currentPostTopic, setCurrentPostTopic] = useState<PostTopic | undefined>();
+  const [currentPostGroup, setCurrentPostGroup] = useState<PostGroup|undefined>();
+  const [currentPostsGroups, setCurrentPostsGroups] = useState<PostGroup[]|undefined>();
+  const [person, setCurrentPerson] = useState<Person|undefined>()
+  const [socialProfiles,setSocials] = useState<SocialProfile[]|undefined>()
+  const [postTopics,setPostTopics] = useState<PostTopic[]|undefined>()
   const { data: postTopicsData, loading:topicsLoading, error } = useQuery(POST_TOPICS_QUERY, {
     variables: { personId: process.env.PORTFOLIO_ID },
   });
@@ -49,7 +39,7 @@ const ContentfulProvider = ({
   const switchTopic = (topic:PostTopic)=>{
     const newPath = topic?.path
     const oldPath = currentPostTopic?.path
-    if(newPath && newPath!=oldPath ) setCurrentPostTopic(topic)
+    if(newPath!=oldPath || !oldPath) setCurrentPostTopic(topic)
   }
 
   const switchPath = (path:string)=>{
@@ -60,12 +50,28 @@ const ContentfulProvider = ({
   useEffect(()=>{
     setLoading(true)
     if(topicsLoading)return
-    const newTopics : [PostTopic]|null = postTopicsData?.postTopicCollection?.items?.map((topic:any)=>({topicName:topic?.topicName,id:topic?.sys?.id,path:topic?.path}))
+    const newTopics : PostTopic[]|undefined = postTopicsData?.postTopicCollection?.items?.map((topic:any)=>({topicName:topic?.topicName,id:topic?.sys?.id,path:topic?.path}))
     setPostTopics(newTopics)
     setLoading(false)
   },[postTopicsData])
   
-  const data: any = { person, socialProfiles, currentPostTopic, postTopics,switchTopic,setCurrentPerson,setPostTopics,setSocials,setLoading,switchPath};
+  const data: ContentfulProviderValues = {
+    person,
+    socialProfiles,
+    currentPostTopic,
+    setCurrentPostTopic,
+    postTopics,
+    switchTopic,
+    setCurrentPerson,
+    setPostTopics,
+    setSocials,
+    setLoading,
+    switchPath,
+    setCurrentPostGroup,
+    setCurrentPostsGroups,
+    currentPostGroup,
+    currentPostsGroups
+  };
   return (
     <ContentfulContext.Provider value={data}>
         <Splash loading={loading} />
