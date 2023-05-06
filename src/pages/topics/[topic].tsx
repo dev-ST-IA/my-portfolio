@@ -23,13 +23,15 @@ const Page : FC<Props> = ({ initialGroups,initialGroupTitles,totalGroups,path}: 
   const initialGroup = initialGroups? initialGroups[0]:undefined;
   const [getGroups,{loading,error,data:groupsData}] = useLazyQuery(POST_GROUPS_QUERY);
   const context = useContext<ContentfulProviderValues|undefined>(ContentfulContext);
+  useEffect(()=>{
+    if(context == null) return;
+    context.setCurrentPostsGroups(initialGroups)
+    context.setCurrentPostGroup(initialGroup);
+  },[initialGroups, initialGroupTitles, path])
+
   if(!context)return null;
   const {setLoading,currentPostGroup,currentPostsGroups,setCurrentPostGroup,setCurrentPostsGroups} = context
   
-  useEffect(()=>{
-    setCurrentPostsGroups(initialGroups)
-    setCurrentPostGroup(initialGroup);
-  },[initialGroups, initialGroupTitles, path])
 
   const changeActiveGroup = (groupTitle:string)=>{
   const filteredGroup = currentPostsGroups
