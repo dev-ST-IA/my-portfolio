@@ -11,7 +11,7 @@ const PostSubSection: FC<PostSubSectionProps> = ({ sections }: PostSubSectionPro
       <PostSubSectionContainer>
         <PostSubSectionList>
           {sections?.map((section) => (
-            <StyledLink href={`#${section.key}`}><PostSubSectionItem>{section.title}</PostSubSectionItem></StyledLink>
+            <StyledLink key={section.key+""} href={`#${section.key}`}><PostSubSectionItem>{section.title}</PostSubSectionItem></StyledLink>
           ))}
         </PostSubSectionList>
       </PostSubSectionContainer>
